@@ -1,25 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
+import { lazy, Suspense, useEffect } from "react";
+import Navbar from "./_components/Navbar";
+import Alert from "./_components/Alert";
+import { AlertState } from "./context/alert/AlertState";
+import { FirebaseState } from "./context/firebase/FirebaseState";
+
+const Page404 = lazy(() => import("./_pages/Page404")),
+    Home = lazy(() => import("./_pages/Home")),
+    About = lazy(() => import("./_pages/About"));
+
+const ScrollToTop = () => {
+    const { pathname } = useLocation();
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [pathname]);
+    return null;
+};
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    return (
+        <FirebaseState>
+            <AlertState>
+                <Router>
+                    <ScrollToTop />
+                    <Navbar />
+                    <main className="container">
+                        <Alert />
+                        <Suspense fallback={<span></span>}>
+                            <Routes>
+                                <Route path="/" element={<Home />} />
+                                <Route path="/about" element={<About />} />
+                                <Route path="*" element={<Page404 />} />
+                            </Routes>
+                        </Suspense>
+                    </main>
+                </Router>
+            </AlertState>
+        </FirebaseState>
+    );
 }
 
 export default App;
